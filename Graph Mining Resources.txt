@@ -1,0 +1,7 @@
+https://wadsashika.wordpress.com/2014/09/19/measuring-graph-similarity-using-neighbor-matching/
+http://mathoverflow.net/questions/38305/similarity-of-weighted-graphs
+http://www.cs.unb.ca/agentmatcher/Jing%20system%20back%20up/wDAG/thesis%20and%20defense/0831JingThesisfinal%20without%20complexity.pdf
+http://en.wikipedia.org/wiki/SimRank
+http://ebiquity.umbc.edu/_file_directory_/papers/509.pdf
+http://en.wikipedia.org/wiki/Graph_operations
+http://research.microsoft.com/en-us/um/people/borgs/Papers/HomRev.pdf
