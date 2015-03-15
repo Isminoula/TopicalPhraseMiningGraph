@@ -5,3 +5,9 @@ http://en.wikipedia.org/wiki/SimRank
 http://ebiquity.umbc.edu/_file_directory_/papers/509.pdf
 http://en.wikipedia.org/wiki/Graph_operations
 http://research.microsoft.com/en-us/um/people/borgs/Papers/HomRev.pdf
+
+Graph Similarity Algorithms http://politespider.com/papers/general/Graph%20similarity%20algorithms.pdf
+SimRank: A Measure of Structural-Context Similarity http://www-cs-students.stanford.edu/~glenj/simrank.pdf
+Measuring Similarity of Graph Nodes by Neighbor Matching http://argo.matf.bg.ac.rs/publications/2011/similarity.pdf
+Graph Similarity and Matching http://dspace.mit.edu/bitstream/handle/1721.1/34119/67618399.pdf
+A Measure of Similarity between Graph Vertices: Applications to Synonym Extraction and Web Searching http://perso.uclouvain.be/vincent.blondel/publications/02BV-graph.pdf
