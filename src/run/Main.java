@@ -83,9 +83,9 @@ public class Main {
 
     public static void main(String[] args) {
         Main main = new Main();
-        String choice = "test/allafrica/titles_allafrica.txt";
-        String distr = "test/allafrica/allafrica_ctm_results_titles_4topics.txt";
-        String outputFile = "test/allafrica/force.csv";
+        String choice = "test/allafricaApril/titles_allafrica.txt";
+        String distr = "test/allafricaApril/allafrica_ctm_results_titles_4topics.txt";
+        String outputFile = "test/allafricaApril/force.csv";
         int numberOfTopic = 2;
         main.doGenerateSummary(choice, distr, outputFile, numberOfTopic, true, 100);
     }
