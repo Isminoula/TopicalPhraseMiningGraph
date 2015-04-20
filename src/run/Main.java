@@ -71,8 +71,9 @@ public class Main {//
                 builder.saveGraphToCSV(csv);
             }
 
+           // testing .getSortedVertex()
             g = builder.getGraph();
-            builder.getSortedVertexSet();
+            builder.getSortedVertexSet(true);
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
