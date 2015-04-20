@@ -18,7 +18,7 @@ import util.*;
  *
  * @author isminilourentzou
  */
-public class Main {
+public class Main {//
 
     HashSet<String> sentences = new HashSet<String>();
     Analyzer analyze = new MyStandardAnalyzer(Version.LUCENE_42);
