@@ -72,6 +72,8 @@ public class Main {
             }
 
             g = builder.getGraph();
+            builder.getSortedVertexSet();
+
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
