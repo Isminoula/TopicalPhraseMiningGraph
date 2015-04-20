@@ -337,7 +337,7 @@ public class GraphBuilder {
     }
 
     /**
-     * Remove edges below the thershold
+     * Remove edges below the threshold
      */
     public void removeEdges(double thershold) {
         Set vertexSet = graph.vertexSet();
@@ -364,4 +364,66 @@ public class GraphBuilder {
             }
         }
     }
+
+    /*
+        @params - true for reverse, false otherwise
+        @output - graph vertex set sorted w.r.t. probability
+     */
+    public List<Object> getSortedVertexSet(final boolean reverse) {
+        Set vertexSet = graph.vertexSet();
+
+        // make a list
+        List<Object> vertexList = new ArrayList<Object>(vertexSet);
+
+        // sort the list
+        Collections.sort(vertexList, new Comparator<Object>() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                Node n1 = (Node) o1; Node n2 = (Node) o2;
+                if (reverse) {
+                    return Double.valueOf(n2.getNodeProb()).compareTo(n1.getNodeProb());
+                }
+                return Double.valueOf(n1.getNodeProb()).compareTo(n2.getNodeProb());
+            }
+        });
+
+        return vertexList;
+    }
+
+    /*
+        @params - threshold value
+        @output - list of all possible walks s.t. product(walk) > threshold
+     */
+    public List<List<Object>> getPossibleWalks(double threshold) {
+        /*
+            Pseudo Code:
+                1. get list of nodes sorted wrt to probability
+                2. for every node in the list
+                    a. make lists of walk possible
+                    b. end walk if product(walk) < threshold or no more outlinks
+                    c. add lists to main list
+                3. return list of lists
+
+         */
+        // get reversed (i.e. max prob first) sorted list of nodes
+        List<Object> vertexList = getSortedVertexSet(true);
+        List<List<Object>> walks = new ArrayList<List<Object>>();
+
+        // iterate list
+        for (Object o : vertexList) {
+            Node node = (Node) o;
+        }
+
+        return walks;
+    }
+
+
+    private List<Object> walksHelper(Node node) {
+        ArrayList<Object> list = new ArrayList<Object>();
+        list.add(node);
+
+
+        return list;
+    }
+
 }
