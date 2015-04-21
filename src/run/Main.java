@@ -9,6 +9,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -45,7 +46,7 @@ public class Main {//
      * edges to save to csv. If topK is set to -1 then we include the whole edge
      * set (independent to removing edges lower than a thershold)
      */
-    public SimpleDirectedWeightedGraph doGenerateSummary(String fileName, String distr, String outfile, int topicId, boolean removeEdges, int topK) {
+    public GraphBuilder doGenerateSummary(String fileName, String distr, String outfile, int topicId, boolean removeEdges, int topK) {
         PrintWriter csv = null;
         GraphBuilder builder = new GraphBuilder();
         SimpleDirectedWeightedGraph g;
@@ -93,7 +94,7 @@ public class Main {//
 
         g = builder.getGraph();
         //builder.printGraph();//
-        return g;
+        return builder;
     }
     
     public static void main(String[] args) {
@@ -105,23 +106,28 @@ public class Main {//
         int numberOfTopicA = 2;
         int numberOfTopicB = 4;
         
-        System.out.println("Yay! First graph ----------------------------------------------");
-        SimpleDirectedWeightedGraph a = main.doGenerateSummary(choice, distr, outputFileA, numberOfTopicA, true, 100);
+        //System.out.println("Yay! First graph ----------------------------------------------");
+        //SimpleDirectedWeightedGraph a = main.doGenerateSummary(choice, distr, outputFileA, numberOfTopicA, true, 100);
         //System.out.println("Yay! Second graph ----------------------------------------------");
         //SimpleDirectedWeightedGraph b = main.doGenerateSummary(choice, distr, outputFileB, numberOfTopicB, true, 100);
         
+        GraphBuilder gb = main.doGenerateSummary(choice, distr, outputFileA, numberOfTopicA, true, 100);
+        
         System.out.println();
         //traverse(a);
-        extract(a);
+        extract(gb);
         
 //pass parameters, set edges cooccurances, prob|topic, median-
     }
     
-    public static void extract(SimpleDirectedWeightedGraph graph){
+    public static void extract(GraphBuilder graphBuilder){
     	//double threshold = 25;
     	//double accumulate = 0;
     	//while (accumulate < threshold)
     	//will also loop through Harshay's list most likely
+    	
+    	SimpleDirectedWeightedGraph graph = graphBuilder.getGraph();
+    	List<Object> sorted = graphBuilder.getSortedVertexSet(false);
     	
     	Set vertexSet = graph.vertexSet();
     	double bestVertexProb = 0;
