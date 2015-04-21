@@ -29,7 +29,6 @@ public class SortingSearching {
     public static HashMap sort(HashMap map) {
         List list = new LinkedList(map.entrySet());
         Collections.sort(list, new Comparator() {
-            @Override
             public int compare(Object o1, Object o2) {
                 return ((Comparable) ((Map.Entry) (o2)).getValue()).compareTo(((Map.Entry) (o1)).getValue());
             }
@@ -51,7 +50,6 @@ public class SortingSearching {
     public static HashMap sortAusksousa(HashMap map) {
         List list = new LinkedList(map.entrySet());
         Collections.sort(list, new Comparator() {
-            @Override
             public int compare(Object o1, Object o2) {
                 return ((Comparable) ((Map.Entry) (o1)).getValue()).compareTo(((Map.Entry) (o2)).getValue());
             }
