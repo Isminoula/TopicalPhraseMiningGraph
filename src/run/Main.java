@@ -27,7 +27,7 @@ import java.math.*;
  *
  * @author isminilourentzou
  */
-public class Main {
+public class Main {//
 
     HashSet<String> sentences = new HashSet<String>();
     Analyzer analyze = new MyStandardAnalyzer(Version.LUCENE_42);
@@ -80,6 +80,10 @@ public class Main {
             } else if (topK == -1) {
                 builder.saveGraphToCSV(csv);
             }
+
+           // testing .getSortedVertex()
+            g = builder.getGraph();
+            builder.getSortedVertexSet(true);
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
