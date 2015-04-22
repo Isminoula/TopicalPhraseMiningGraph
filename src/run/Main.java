@@ -132,7 +132,7 @@ public class Main {//
     	double threshold = -10;
     	
     	Iterator vIter = sorted.iterator();
-    	for (int i=0; i<10 && vIter.hasNext(); i++){
+    	for (int i=0; i<10 && vIter.hasNext(); i++){//much will be delegated to getForwardPhrase() later
     		Node v = (Node) vIter.next();
     		ArrayDeque<Node> forwardPhrase = new ArrayDeque<Node>();
     		forwardPhrase.addLast(v);
