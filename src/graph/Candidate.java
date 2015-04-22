@@ -92,7 +92,6 @@ public class Candidate implements Comparable<Candidate> {
         return this.sentence.hashCode();
     }
 
-    @Override
     public int compareTo(Candidate info) {
         List sentList2 = info.sentenceList;
         if (((int[]) sentList2.get(0))[0] == ((int[]) this.sentenceList.get(0))[0]) {

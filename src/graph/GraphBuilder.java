@@ -133,6 +133,7 @@ public class GraphBuilder {
                 String source = ((Node) graph.getEdgeSource(e)).getNodeName();
                 if (!target.equals(v.getNodeName())) {
                     System.out.println((new StringBuilder(String.valueOf(v.getNodeName()))).append(":").append(v.getNodeProb()).append(":").append(v.getStartNode()).append("->").append(target).append(":").append(((Node) graph.getEdgeTarget(e)).getNodeProb()).append(":").append(((Node) graph.getEdgeTarget(e)).getStartNode()).append(";").append(graph.getEdgeWeight(e)).toString());
+                    //System.out.println(graph.getEdgeWeight(e));
                 }
             }
         }
