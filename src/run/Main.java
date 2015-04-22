@@ -6,6 +6,7 @@ import graph.Node;
 import indexing.MyStandardAnalyzer;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import util.*;
 
 import java.math.*;
+import java.util.ArrayDeque;
 
 /**
  *
@@ -121,32 +123,57 @@ public class Main {//
     }
     
     public static void extract(GraphBuilder graphBuilder){
-    	//double threshold = 25;
-    	//double accumulate = 0;
-    	//while (accumulate < threshold)
-    	//will also loop through Harshay's list most likely
     	
     	SimpleDirectedWeightedGraph graph = graphBuilder.getGraph();
-    	List<Object> sorted = graphBuilder.getSortedVertexSet(false);
+    	List<Object> sorted = graphBuilder.getSortedVertexSet(true);
+    	System.out.println ("size: " +  sorted.size());
+
+    	List< ArrayDeque<Node> > phrases = new ArrayList< ArrayDeque<Node> >();
+    	double threshold = -10;
     	
-    	Set vertexSet = graph.vertexSet();
-    	double bestVertexProb = 0;
-    	Node bestVertex = (Node) vertexSet.iterator().next();
-    	for (Iterator vIter = vertexSet.iterator(); vIter.hasNext();){
+    	Iterator vIter = sorted.iterator();
+    	for (int i=0; i<10 && vIter.hasNext(); i++){
     		Node v = (Node) vIter.next();
-    		//System.out.println(graph.getEdgeWeight(v.getNodeProb()));
-    		double curr = v.getNodeProb();
-    		if (curr > bestVertexProb){
-    			bestVertexProb = curr;
-    			bestVertex = v;
-    		}
+    		ArrayDeque<Node> forwardPhrase = new ArrayDeque<Node>();
+    		forwardPhrase.addLast(v);
+
+    		Node currNode = v;
+    		double acc = 0;
+        	while (acc > threshold){
+        		Set outEdges = graph.outgoingEdgesOf(currNode);
+            	ArrayList<Node> outNodes = new ArrayList<Node>();//didn't know how to construct a set
+            	for (Iterator eIter = outEdges.iterator(); eIter.hasNext();){
+            		outNodes.add((Node) graph.getEdgeTarget(eIter.next()));//converts set of edges to arraylist of respective target nodes
+            	}
+            	
+        		Node forwardNode = getForwardNode(sorted, outNodes, forwardPhrase);
+        		if (forwardNode == null){
+        			break;
+        		}
+        		forwardPhrase.addLast(forwardNode);
+        		acc += Math.log(forwardNode.getNodeProb());
+        		//System.out.println(Math.log(forwardNode.getNodeProb()));
+        		currNode = forwardNode;
+        	}
+    		
+        	phrases.add(forwardPhrase);
+        	
+    		//Set inEdges = graph.incomingEdgesOf(v);
     	}
-		System.out.println(bestVertex.getNodeName() 
-				+ "\t" + bestVertexProb 
-				+ "\t" + Math.log(bestVertexProb));
-		
+    	
+    	for (Iterator pIter = phrases.iterator(); pIter.hasNext();){
+    		ArrayDeque<Node> phrase = (ArrayDeque<Node>) pIter.next();
+    		for (Iterator wIter = phrase.iterator(); wIter.hasNext();){
+    			Node word = (Node) wIter.next();
+    			if (word != null){
+    				System.out.print(word.getNodeName() + " ");
+    			}
+    		}
+    		System.out.println();
+    	}
+    	
     	//Set edges = graph.edgesOf(bestVertex);
-		Set inEdges = graph.incomingEdgesOf(bestVertex);//all edges soon
+		/*
     	double bestIncomingCount = 0;
     	DefaultWeightedEdge bestInEdge = (DefaultWeightedEdge) inEdges.iterator().next();//hopefully not empty
     	for (Iterator eIter = inEdges.iterator(); eIter.hasNext();) {//every edge of that node
@@ -165,7 +192,6 @@ public class Main {//
     			+ "\t" + Math.log(inNode.getNodeProb()));
 		
     	//Set edges = graph.edgesOf(bestVertex);
-		Set outEdges = graph.outgoingEdgesOf(bestVertex);//all edges soon
     	double bestOutgoingCount = 0;
     	DefaultWeightedEdge bestOutEdge = (DefaultWeightedEdge) outEdges.iterator().next();//hopefully not empty
     	for (Iterator eIter = outEdges.iterator(); eIter.hasNext();) {//every edge of that node
@@ -187,9 +213,37 @@ public class Main {//
     	System.out.println(inNode.getNodeName() 
     			+ " " + bestVertex.getNodeName() 
     			+ " " + outNode.getNodeName());
+    	*/
     }
     
-    public static void traverse(SimpleDirectedWeightedGraph graph){//not a real method, I just made this for practice
+    public static void getForwardPhrase(double threshold){
+    	
+    }
+    
+    /**
+     * @param sorted
+     * @param outNodes
+     * @return the Node in outNodes with the highest probability given the topic
+     */
+    public static Node getForwardNode(List<Object> sorted, ArrayList<Node> outNodes, ArrayDeque<Node> forwardPhrase){
+    	Iterator vIter = sorted.iterator();
+    	/*
+    	for (int i=0; i<wordCount; i++){//to prevent cycles
+    		vIter.next();
+    	}
+    	*/
+    	
+    	while (vIter.hasNext()){
+    		Node candidate = (Node) vIter.next();
+    		if (outNodes.contains(candidate) && !forwardPhrase.contains(candidate)){
+    			return candidate;
+    		}
+    	}
+    	return null;
+    }
+    
+    /*
+    public static void practice(SimpleDirectedWeightedGraph graph){//not a real method, I just made this for practice
     	Set vertexSet = graph.vertexSet();
     	Iterator vIter = vertexSet.iterator();
     	while (vIter.hasNext()) {//every node
@@ -218,34 +272,5 @@ public class Main {//
                 }
         	}
     	}
-//    	while (vIter.hasNext()) {
-//    		Node v = (Node) vIter.next();
-//          Set edges = graph.edgesOf(v);
-//    	}
-    	/*
-    	for (Iterator eIter = edges.iterator(); eIter.hasNext();) {
-            DefaultWeightedEdge e = (DefaultWeightedEdge) eIter.next();
-            String target = ((Node) graph.getEdgeTarget(e)).getNodeName();
-            String source = ((Node) graph.getEdgeSource(e)).getNodeName();
-            if (!target.equals(v.getNodeName())) {
-                System.out.println((new StringBuilder(
-                		String.valueOf(v.getNodeName())))
-//                		.append(":")
-//                		.append(v.getNodeProb())
-//                		.append(":")
-//                		.append(v.getStartNode())
-//                		.append("->")
-//                		.append(target)
-//                		.append(":")
-//                		.append(((Node) graph.getEdgeTarget(e)).getNodeProb())
-//                		.append(":")
-//                		.append(((Node) graph.getEdgeTarget(e)).getStartNode())
-//                		.append(";")
-//                		.append(graph.getEdgeWeight(e)).toString()
-                		);
-                //System.out.println(graph.getEdgeWeight(e));
-            }
-        }
-        */
-    }
+    }*/
 }
