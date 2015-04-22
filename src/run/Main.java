@@ -23,7 +23,7 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import util.*;
 
-import java.math.*;
+import java.math.*;//I don't think it's needed for Math.log, so I might delete later
 import java.util.ArrayDeque;
 
 /**
@@ -227,15 +227,10 @@ public class Main {//
      */
     public static Node getForwardNode(List<Object> sorted, ArrayList<Node> outNodes, ArrayDeque<Node> forwardPhrase){
     	Iterator vIter = sorted.iterator();
-    	/*
-    	for (int i=0; i<wordCount; i++){//to prevent cycles
-    		vIter.next();
-    	}
-    	*/
     	
     	while (vIter.hasNext()){
     		Node candidate = (Node) vIter.next();
-    		if (outNodes.contains(candidate) && !forwardPhrase.contains(candidate)){
+    		if (outNodes.contains(candidate) && !forwardPhrase.contains(candidate)){//!forwardPhrase.contains() prevents cycles
     			return candidate;
     		}
     	}
