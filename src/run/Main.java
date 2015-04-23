@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.util.Version;
+import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import util.*;
@@ -29,207 +30,237 @@ import java.util.ArrayDeque;
  */
 public class Main {//
 
-    Analyzer analyze = new MyStandardAnalyzer(Version.LUCENE_42);
+	Analyzer analyze = new MyStandardAnalyzer(Version.LUCENE_42);
 
-    /**
-     * Generates the csv file for visualizing the graph
-     *
-     * @param fileName the file that contains the sentences or titles
-     * @param distr the topical distributions file from CPLSA
-     * @param outfile the filename for the new csv graph file
-     * @param topicId the topic cluster we are interested in
-     * @param removeEdges whether to remove edges with score lower than the
-     * threshold (average) or not
-     * @param topK the number of top scored pairs of nodes with their respective
-     * edges to save to csv. If topK is set to -1 then we include the whole edge
-     * set (independent to removing edges lower than a thershold)
-     */
-    public GraphBuilder doGenerateSummary(String fileName, String distr, String outfile, int topicId, boolean removeEdges, int topK) {
-        PrintWriter csv = null;
-        GraphBuilder builder = new GraphBuilder();
-        SimpleDirectedWeightedGraph g;
+	/**
+	 * Generates the csv file for visualizing the graph
+	 *
+	 * @param fileName the file that contains the sentences or titles
+	 * @param distr the topical distributions file from CPLSA
+	 * @param outfile the filename for the new csv graph file
+	 * @param topicId the topic cluster we are interested in
+	 * @param removeEdges whether to remove edges with score lower than the
+	 * threshold (average) or not
+	 * @param topK the number of top scored pairs of nodes with their respective
+	 * edges to save to csv. If topK is set to -1 then we include the whole edge
+	 * set (independent to removing edges lower than a thershold)
+	 */
+	public GraphBuilder doGenerateSummary(String fileName, String distr, String outfile, int topicId, boolean removeEdges, int topK) {
+		PrintWriter csv = null;
+		GraphBuilder builder = new GraphBuilder();
+		SimpleDirectedWeightedGraph g;
 
-        try {
-            csv = new PrintWriter(new File(outfile));
-            //Create a new empty graph
-            //Read the topic model distributions
-            ReadDistributions.readFile(distr);
-            //Get the topic of interest
-            TreeMap<String, Double> topics = ReadDistributions.commonModel.get(topicId);
-            TreeMap<String, Double> documents = ReadDistributions.docProbs.get(topicId);
-            HashMap wordNodeMap = null;
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(fileName));
-                String str;
-                int sentenceid = 0;
-                while ((str = reader.readLine()) != null) {
-                    sentenceid++;
-                    String both[] = str.split("\t");
-                    if (both.length >= 2 && !both[1].isEmpty()) {
-                        //System.out.println(both[0]+" "+both[1]);
-                        str = StringPreprocessing.analyseString(analyze, both[1]);
-                        String docId = both[0];
-                        //unfortunatelly the lucene analyzer messes up punctuaction, will be solved later on ...
-                        wordNodeMap = builder.growGraph(str, docId, sentenceid, topics, documents);
-                    }
-                }
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-            if (topK != -1) {
-                builder.saveRankedEdgeListToCSV(csv, topK);
-            } else if (removeEdges) {
-                double median = builder.medianGraph();
-                builder.saveGraphToCSV(csv, median);
-            } else if (topK == -1) {
-                builder.saveGraphToCSV(csv);
-            }
+		try {
+			csv = new PrintWriter(new File(outfile));
+			//Create a new empty graph
+			//Read the topic model distributions
+			ReadDistributions.readFile(distr);
+			//Get the topic of interest
+			TreeMap<String, Double> topics = ReadDistributions.commonModel.get(topicId);
+			TreeMap<String, Double> documents = ReadDistributions.docProbs.get(topicId);
+			HashMap wordNodeMap = null;
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(fileName));
+				String str;
+				int sentenceid = 0;
+				while ((str = reader.readLine()) != null) {
+					sentenceid++;
+					String both[] = str.split("\t");
+					if (both.length >= 2 && !both[1].isEmpty()) {
+						//System.out.println(both[0]+" "+both[1]);
+						str = StringPreprocessing.analyseString(analyze, both[1]);
+						String docId = both[0];
+						//unfortunatelly the lucene analyzer messes up punctuaction, will be solved later on ...
+						wordNodeMap = builder.growGraph(str, docId, sentenceid, topics, documents);
+					}
+				}
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+			if (topK != -1) {
+				builder.saveRankedEdgeListToCSV(csv, topK);
+			} else if (removeEdges) {
+				double median = builder.medianGraph();
+				builder.saveGraphToCSV(csv, median);
+			} else if (topK == -1) {
+				builder.saveGraphToCSV(csv);
+			}
 
-            // testing .getSortedVertex()
-            g = builder.getGraph();
-            builder.getSortedVertexSet(true);
+			// testing .getSortedVertex()
+			g = builder.getGraph();
+			builder.getSortedVertexSet(true);
 
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            csv.close();
-        }
-        g = builder.getGraph();
-        return builder;
-    }
+		} catch (FileNotFoundException ex) {
+			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			csv.close();
+		}
+		g = builder.getGraph();
+		return builder;
+	}
 
-    public static void main(String[] args) {
-        Main main = new Main();
-        String choice = "test/allafrica/allafrica_titles.txt";
-        String distr = "test/allafrica/allafrica_ctm_results_titles_4topics.txt";
-        String outputFile = "test/allafrica/forceA.csv";
-        int numberOfTopic = 2;
+	public static void main(String[] args) {
+		Main main = new Main();
+		String choice = "test/allafrica/allafrica_titles.txt";
+		String distr = "test/allafrica/allafrica_ctm_results_titles_4topics.txt";
+		String outputFile = "test/allafrica/forceA.csv";
+		//int numberOfTopic = 2;
 
-        GraphBuilder gb = main.doGenerateSummary(choice, distr, outputFile, numberOfTopic, true, 100);
+		GraphBuilder gb1 = main.doGenerateSummary(choice, distr, outputFile, 1, true, 100);
+		GraphBuilder gb2 = main.doGenerateSummary(choice, distr, outputFile, 2, true, 100);
+		GraphBuilder gb3 = main.doGenerateSummary(choice, distr, outputFile, 3, true, 100);
+		GraphBuilder gb4 = main.doGenerateSummary(choice, distr, outputFile, 4, true, 100);
 
-        System.out.println();
-        //traverse(a);
-        extract(gb);
+		System.out.println("\n\n\ntopic 1: ");
+		extract(gb1);
+		System.out.println("\n\n\ntopic 2: ");
+		extract(gb2);
+		System.out.println("\n\n\ntopic 3: ");
+		extract(gb3);
+		System.out.println("\n\n\ntopic 4: ");
+		extract(gb4);
+	}
 
-//pass parameters, set edges cooccurances, prob|topic, median-
-    }
+	public static void extract(GraphBuilder graphBuilder) {
 
-    public static void extract(GraphBuilder graphBuilder) {
+		SimpleDirectedWeightedGraph<Node, DefaultWeightedEdge> graph = graphBuilder.getGraph();
+		List<Object> sorted = graphBuilder.getSortedVertexSet(true);
+		System.out.println("size: " + sorted.size());
 
-        SimpleDirectedWeightedGraph graph = graphBuilder.getGraph();
-        List<Object> sorted = graphBuilder.getSortedVertexSet(true);
-        System.out.println("size: " + sorted.size());
+		List< ArrayDeque<Node>> forwardPhrases = new ArrayList< ArrayDeque<Node>>();
+		List< ArrayDeque<Node>> bothwardPhrases = new ArrayList< ArrayDeque<Node>>();
+		List< ArrayDeque<Node>> backwardPhrases = new ArrayList< ArrayDeque<Node>>();
+		double threshold = -100;
 
-        List< ArrayDeque<Node>> phrases = new ArrayList< ArrayDeque<Node>>();
-        double threshold = -10;
-
-        Iterator vIter = sorted.iterator();
-        for (int i = 0; i < 10 && vIter.hasNext(); i++) {//much will be delegated to getForwardPhrase() later
-            Node v = (Node) vIter.next();
-            ArrayDeque<Node> forwardPhrase = new ArrayDeque<Node>();
-            forwardPhrase.addLast(v);
-
-            Node currNode = v;
-            double acc = 0;
-            while (acc > threshold) {
-                Set outEdges = graph.outgoingEdgesOf(currNode);
-                ArrayList<Node> outNodes = new ArrayList<Node>();//didn't know how to construct a set
-                for (Iterator eIter = outEdges.iterator(); eIter.hasNext();) {
-                    outNodes.add((Node) graph.getEdgeTarget(eIter.next()));//converts set of edges to arraylist of respective target nodes
-                }
-
-                Node forwardNode = getForwardNode(sorted, outNodes, forwardPhrase);
-                if (forwardNode == null) {
-                    break;
-                }
-                forwardPhrase.addLast(forwardNode);
-                acc += Math.log(forwardNode.getNodeProb());
-                //System.out.println(Math.log(forwardNode.getNodeProb()));
-                currNode = forwardNode;
-            }
-
-            phrases.add(forwardPhrase);
-
-            //Set inEdges = graph.incomingEdgesOf(v);
-        }
-
-        for (Iterator pIter = phrases.iterator(); pIter.hasNext();) {
-            ArrayDeque<Node> phrase = (ArrayDeque<Node>) pIter.next();
-            for (Iterator wIter = phrase.iterator(); wIter.hasNext();) {
-                Node word = (Node) wIter.next();
-                if (word != null) {
-                    System.out.print(word.getNodeName() + " ");
-                }
-            }
-            System.out.println();
-        }
-
-    	//Set edges = graph.edgesOf(bestVertex);
-		/*
-         double bestIncomingCount = 0;
-         DefaultWeightedEdge bestInEdge = (DefaultWeightedEdge) inEdges.iterator().next();//hopefully not empty
-         for (Iterator eIter = inEdges.iterator(); eIter.hasNext();) {//every edge of that node
-         DefaultWeightedEdge e = (DefaultWeightedEdge) eIter.next();
-         //System.out.println(graph.getEdgeWeight(e));
-         double curr = graph.getEdgeWeight(e); //why are edge weights doubles? 
-         if (curr > bestIncomingCount){
-         bestIncomingCount = curr;
-         bestInEdge = e;
-         }
-         }
-         Node inNode = (Node) graph.getEdgeSource(bestInEdge);
-         System.out.println(inNode.getNodeName() 
-         + "\t" + bestIncomingCount
-         + "\t" + inNode.getNodeProb()
-         + "\t" + Math.log(inNode.getNodeProb()));
+		int i=0;
+		for (Iterator vIter = sorted.iterator(); i < 10 && vIter.hasNext(); i++) {
+			Node v = (Node) vIter.next();
+			forwardPhrases.add(getForwardPhrase(graph, v, threshold, 0));
+		}
 		
-         //Set edges = graph.edgesOf(bestVertex);
-         double bestOutgoingCount = 0;
-         DefaultWeightedEdge bestOutEdge = (DefaultWeightedEdge) outEdges.iterator().next();//hopefully not empty
-         for (Iterator eIter = outEdges.iterator(); eIter.hasNext();) {//every edge of that node
-         DefaultWeightedEdge e = (DefaultWeightedEdge) eIter.next();
-         //System.out.println(graph.getEdgeWeight(e));
-         double curr = graph.getEdgeWeight(e); //why are edge weights doubles? 
-         if (curr > bestOutgoingCount){
-         bestOutgoingCount = curr;
-         bestOutEdge = e;
-         }
-         }
-         Node outNode = (Node) graph.getEdgeTarget(bestOutEdge);
-         System.out.println(outNode.getNodeName() 
-         + "\t" + bestOutgoingCount
-         + "\t" + outNode.getNodeProb()
-         + "\t" + Math.log(outNode.getNodeProb()));
-    	
-         System.out.println();
-         System.out.println(inNode.getNodeName() 
-         + " " + bestVertex.getNodeName() 
-         + " " + outNode.getNodeName());
-         */
-    }
+		i=0;
+		for (Iterator vIter = sorted.iterator(); i < 10 && vIter.hasNext(); i++) {
+			Node v = (Node) vIter.next();
+			bothwardPhrases.add(getBothwardPhrase(graph, v, threshold, 0));
+		}
+		
+		i=0;
+		for (Iterator vIter = sorted.iterator(); i < 10 && vIter.hasNext(); i++) {
+			Node v = (Node) vIter.next();
+			backwardPhrases.add(getBackwardPhrase(graph, v, threshold, 0));
+		}
+		
+		System.out.println("\nforwardPhrases: ");
+		printPhrases(forwardPhrases);
+		System.out.println("\nbothwardPhrases: ");
+		printPhrases(bothwardPhrases);
+		System.out.println("\nbackwardPhrases: ");
+		printPhrases(backwardPhrases);
+	}
+	
+	public static ArrayDeque<Node> getBothwardPhrase(SimpleDirectedWeightedGraph<Node, DefaultWeightedEdge> graph, Node node, double threshold, double acc) {
+		ArrayDeque<Node> bothwardPhrase = new ArrayDeque<Node>();
+		bothwardPhrase.addLast(node);
+		Node forwardNode = node;
+		Node backwardNode = node;
+		while (acc > threshold && (forwardNode != null || backwardNode != null)){
+			if (forwardNode != null){
+				Node forwardCandidate = getForwardWord(graph, forwardNode, bothwardPhrase);
+				if (forwardCandidate != null){
+					bothwardPhrase.addLast(forwardCandidate);
+					acc += Math.log(forwardCandidate.getNodeProb());
+				}
+				forwardNode = forwardCandidate;
+			}
+			if (backwardNode != null){
+				Node backwardCandidate = getBackwardWord(graph, backwardNode, bothwardPhrase);
+				if (backwardCandidate != null){
+					bothwardPhrase.addFirst(backwardCandidate);
+					acc += Math.log(backwardCandidate.getNodeProb());
+				}
+				backwardNode = backwardCandidate;
+			}
+		}
+		return bothwardPhrase;
+	}
 
-    public static void getForwardPhrase(double threshold) {
+	public static ArrayDeque<Node> getForwardPhrase(SimpleDirectedWeightedGraph<Node, DefaultWeightedEdge> graph, Node node, double threshold, double acc) {
+		ArrayDeque<Node> forwardPhrase = new ArrayDeque<Node>();
+		forwardPhrase.addLast(node);
+		while (acc > threshold && node != null){
+			Node forwardCandidate = getForwardWord(graph, node, forwardPhrase);
+			if (forwardCandidate != null){
+				forwardPhrase.addLast(forwardCandidate);
+				acc += Math.log(forwardCandidate.getNodeProb());
+			}
+			node = forwardCandidate;
+		}
+		return forwardPhrase;
+	}
 
-    }
+	public static ArrayDeque<Node> getBackwardPhrase(SimpleDirectedWeightedGraph<Node, DefaultWeightedEdge> graph, Node node, double threshold, double acc) {
+		ArrayDeque<Node> backwardPhrase = new ArrayDeque<Node>();
+		backwardPhrase.addFirst(node);
+		while (acc > threshold && node != null){
+			Node backwardCandidate = getBackwardWord(graph, node, backwardPhrase);
+			if (backwardCandidate != null){
+				backwardPhrase.addFirst(backwardCandidate);
+				acc += Math.log(backwardCandidate.getNodeProb());
+			}
+			node = backwardCandidate;
+		}
+		return backwardPhrase;
+	}
+	
+	public static Node getForwardWord(SimpleDirectedWeightedGraph<Node, DefaultWeightedEdge> graph, Node node, ArrayDeque<Node> phrase) {
+		Set<DefaultWeightedEdge> outEdges = graph.outgoingEdgesOf(node);
+		DefaultWeightedEdge edge = pickHeaviestEdge(graph, outEdges);
+		if (edge != null){
+			Node candidate = graph.getEdgeTarget(edge);
+			if (!phrase.contains(candidate)){//prevent cycles
+				return candidate;
+			}
+		}//if we had the 2nd best candidate or 3rd best candidate, we would have tried them before returning null
+		return null;
+	}
+	
+	public static Node getBackwardWord(SimpleDirectedWeightedGraph<Node, DefaultWeightedEdge> graph, Node node, ArrayDeque<Node> phrase) {
+		Set<DefaultWeightedEdge> inEdges = graph.incomingEdgesOf(node);
+		DefaultWeightedEdge edge = pickHeaviestEdge(graph, inEdges);
+		if (edge != null){
+			Node candidate = graph.getEdgeSource(edge);
+			if (!phrase.contains(candidate)){//prevent cycles
+				return candidate;
+			}
+		}//if we had the 2nd best candidate or 3rd best candidate, we would have tried them before returning null
+		return null;
+	}
+	
+	public static DefaultWeightedEdge pickHeaviestEdge(SimpleDirectedWeightedGraph<Node, DefaultWeightedEdge> graph, Set<DefaultWeightedEdge> edges){
+		DefaultWeightedEdge edge = null;
+		for (Iterator eIter = edges.iterator(); eIter.hasNext();) {
+			DefaultWeightedEdge e = (DefaultWeightedEdge) eIter.next();
+			if (edge == null || graph.getEdgeWeight(e) > graph.getEdgeWeight(edge)){
+				edge = e;
+			}
+		}
+		return edge;
+	}
+	
+	public static void printPhrases(List< ArrayDeque<Node>> phrases){
+		for (Iterator pIter = phrases.iterator(); pIter.hasNext();) {
+			ArrayDeque<Node> phrase = (ArrayDeque<Node>) pIter.next();
+			for (Iterator wIter = phrase.iterator(); wIter.hasNext();) {
+				Node word = (Node) wIter.next();
+				if (word != null) {
+					System.out.print(word.getNodeName() + " ");
+				}
+			}
+			System.out.println();
+		}
+	}
 
-    /**
-     * @param sorted
-     * @param outNodes
-     * @return the Node in outNodes with the highest probability given the topic
-     */
-    public static Node getForwardNode(List<Object> sorted, ArrayList<Node> outNodes, ArrayDeque<Node> forwardPhrase) {
-        Iterator vIter = sorted.iterator();
-
-        while (vIter.hasNext()) {
-            Node candidate = (Node) vIter.next();
-            if (outNodes.contains(candidate) && !forwardPhrase.contains(candidate)) {//!forwardPhrase.contains() prevents cycles
-                return candidate;
-            }
-        }
-        return null;
-    }
-
-    /*
+	/*
      public static void practice(SimpleDirectedWeightedGraph graph){//not a real method, I just made this for practice
      Set vertexSet = graph.vertexSet();
      Iterator vIter = vertexSet.iterator();
