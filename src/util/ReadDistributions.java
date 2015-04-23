@@ -58,7 +58,7 @@ public class ReadDistributions {
                         docProbs.put(topicIndex, new TreeMap<String, Double>());
                     }
                     docProbs.get(topicIndex).put(docIndex, docProb);
-                } else if (line.contains("cluster ")) {
+                } else if (line.contains("cluster= ")) {
                     cluster = Integer.parseInt(line.split("\\s+")[1]);
                 } else if (line.equals("common model all probabilities start")) {
                     foundCommonTermProb = true;

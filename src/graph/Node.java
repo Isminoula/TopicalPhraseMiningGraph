@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class Node {
 
-    private List<Integer> docIds = new ArrayList();
+    private List<String> docIds = new ArrayList();
     private List<int[]> sentenceIds = new ArrayList(); //<sentenceId,position>
     private String nodeName = "-1";
     private static int TOTAL_TOKENS = 0;
@@ -38,7 +38,7 @@ public class Node {
         this.currentProb = x;
     }
 
-    public List<Integer> getDocIds() {
+    public List<String> getDocIds() {
         return this.docIds;
     }
 
@@ -58,8 +58,8 @@ public class Node {
         this.nodeName = nodeName;
     }
 
-    public void addDocId(int docId) {
-        this.docIds.add(Integer.valueOf(docId));
+    public void addDocId(String docId) {
+        this.docIds.add(docId);
     }
 
     public void addSentenceId(int sentenceId, int pos) {
@@ -103,8 +103,8 @@ public class Node {
         List<int[]> l1 = n2.getSentenceIds();
 
         int pointer = 0;
-        for (int i = 0; i < l1.size(); i++) {
-            int[] elem1 = (int[]) l1.get(i);
+        for (int[] l11 : l1) {
+            int[] elem1 = (int[]) l11;
             if (pointer > l2.size()) {
                 break;
             }
