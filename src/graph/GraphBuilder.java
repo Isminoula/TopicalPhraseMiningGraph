@@ -9,10 +9,10 @@ import util.SortingSearching;
 
 public class GraphBuilder {
 
-    private static String newline = System.getProperty("line.separator");
-    private SimpleDirectedWeightedGraph graph;
-    private HashMap wordNodeMap;
-    private HashSet stopWords;
+    private static final String newline = System.getProperty("line.separator");
+    private final SimpleDirectedWeightedGraph graph;
+    private final HashMap wordNodeMap;
+    private final HashSet stopWords;
 
     public GraphBuilder() {
         wordNodeMap = new HashMap();
@@ -25,8 +25,8 @@ public class GraphBuilder {
         return graph;
     }
 
-    public HashMap growGraph(String str, int docid, int sid, TreeMap<String, Double> makeProbDistr) {
-        return growSentenceGraph(str, docid, sid, makeProbDistr);
+    public HashMap growGraph(String str, String docid, int sid, TreeMap<String, Double> makeProbDistr, TreeMap<String, Double> docProbDistr) {
+        return growSentenceGraph(str, docid, sid, makeProbDistr, docProbDistr);
     }
 
     private void loadStopWords(String file) {
@@ -40,11 +40,11 @@ public class GraphBuilder {
             }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
-            System.exit(-1);
+            //System.exit(-1);
         }
     }
 
-    private HashMap growSentenceGraph(String str, int docid, int sid, TreeMap<String, Double> makeProbDistr) {
+    private HashMap growSentenceGraph(String str, String docid, int sid, TreeMap<String, Double> makeProbDistr, TreeMap<String, Double> docProbDistr) {
         String words[] = str.split(" ");
         Node prevVertex = null;
         Node currVertex;
@@ -79,26 +79,36 @@ public class GraphBuilder {
                 }
                 if (isCurrVertexNew || isPrevVertexNew) {
                     if (prevVertex != null && !currVertex.equals(prevVertex) && canAdd(prevVertex)) {
-                        graph.addEdge(prevVertex, currVertex);
+                        DefaultWeightedEdge addEdge = (DefaultWeightedEdge) graph.addEdge(prevVertex, currVertex);
+                        double wt = docProbDistr.get(docid);
+                        graph.setEdgeWeight(addEdge, wt);
                     }
                 } else {
                     DefaultWeightedEdge e = (DefaultWeightedEdge) graph.getEdge(prevVertex, currVertex);
                     if (e == null) {
                         try {
                             if (!currVertex.equals(prevVertex) && canAdd(prevVertex)) {
-                                graph.addEdge(prevVertex, currVertex);
+                                DefaultWeightedEdge addEdge = (DefaultWeightedEdge) graph.addEdge(prevVertex, currVertex);
+                                double wt = docProbDistr.get(docid);
+                                graph.setEdgeWeight(addEdge, wt);
                             }
                         } catch (IllegalArgumentException e1) {
                             System.err.println((new StringBuilder("Problem Linking '")).append(prevVertex).append("'  and '").append(currVertex).append("'").toString());
                         }
                     } else {
-                        double wt = graph.getEdgeWeight(e) + 1.0D;
+                        //double wt = graph.getEdgeWeight(e) + 1.0D;
+                        double wt = graph.getEdgeWeight(e) + docProbDistr.get(docid);
                         graph.setEdgeWeight(e, wt);
                     }
+                }
+                String pr = "null";
+                if (prevVertex != null) {
+                    pr = prevVertex.getNodeName();
                 }
                 prevVertex = currVertex;
                 isPrevVertexNew = isCurrVertexNew;
                 pos++;
+
             }
         }
         return wordNodeMap;
@@ -228,8 +238,7 @@ public class GraphBuilder {
         }
         return (avg / totalNodes);
     }
-    
-    
+
     /**
      * Calculate the median score for all edges that are not incoming or
      * outcoming of terminal and connecting punctuation marks and connected
@@ -255,17 +264,16 @@ public class GraphBuilder {
                 }
             }
         }
-        
-        Collections.sort(totals);     
+
+        Collections.sort(totals);
         double median;
         if (totals.size() % 2 == 0) {
             median = ((double) (totals.get(totals.size() / 2)) + (double) (totals.get(totals.size() / 2 - 1))) / 2;
         } else {
             median = (double) totals.get(totals.size() / 2);
         }
-        return median;    
+        return median;
     }
-
 
     /**
      * Calculate the median weight for all edges that are not incoming or
@@ -334,7 +342,7 @@ public class GraphBuilder {
             totalNodes++;
             p.println(n[0].getNodeName() + "," + n[1].getNodeName() + "," + rankEdges.get(n));
         }
-        System.out.println(avg / (double) totalNodes);
+        //System.out.println(avg / (double) totalNodes);
     }
 
     /**
@@ -367,8 +375,8 @@ public class GraphBuilder {
     }
 
     /*
-        @params - true for reverse, false otherwise
-        @output - graph vertex set sorted w.r.t. probability
+     @params - true for reverse, false otherwise
+     @output - graph vertex set sorted w.r.t. probability
      */
     public List<Object> getSortedVertexSet(final boolean reverse) {
         Set vertexSet = graph.vertexSet();
@@ -380,7 +388,8 @@ public class GraphBuilder {
         Collections.sort(vertexList, new Comparator<Object>() {
             @Override
             public int compare(Object o1, Object o2) {
-                Node n1 = (Node) o1; Node n2 = (Node) o2;
+                Node n1 = (Node) o1;
+                Node n2 = (Node) o2;
                 if (reverse) {
                     return Double.valueOf(n2.getNodeProb()).compareTo(n1.getNodeProb());
                 }
@@ -392,18 +401,18 @@ public class GraphBuilder {
     }
 
     /*
-        @params - threshold value
-        @output - list of all possible walks s.t. product(walk) > threshold
+     @params - threshold value
+     @output - list of all possible walks s.t. product(walk) > threshold
      */
     public List<List<Object>> getPossibleWalks(double threshold) {
         /*
-            Pseudo Code:
-                1. get list of nodes sorted wrt to probability
-                2. for every node in the list
-                    a. make lists of walk possible
-                    b. end walk if product(walk) < threshold or no more outlinks
-                    c. add lists to main list
-                3. return list of lists
+         Pseudo Code:
+         1. get list of nodes sorted wrt to probability
+         2. for every node in the list
+         a. make lists of walk possible
+         b. end walk if product(walk) < threshold or no more outlinks
+         c. add lists to main list
+         3. return list of lists
 
          */
         // get reversed (i.e. max prob first) sorted list of nodes
@@ -418,11 +427,9 @@ public class GraphBuilder {
         return walks;
     }
 
-
     private List<Object> walksHelper(Node node) {
         ArrayList<Object> list = new ArrayList<Object>();
         list.add(node);
-
 
         return list;
     }
