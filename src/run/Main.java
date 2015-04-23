@@ -30,7 +30,7 @@ import java.util.ArrayDeque;
  *
  * @author isminilourentzou
  */
-public class Main {//
+public class Main {
 
     HashSet<String> sentences = new HashSet<String>();
     Analyzer analyze = new MyStandardAnalyzer(Version.LUCENE_42);
@@ -94,7 +94,7 @@ public class Main {//
             csv.close();
         }
 
-        g = builder.getGraph();
+        //g = builder.getGraph();
         //builder.printGraph();//
         return builder;
     }
@@ -132,7 +132,7 @@ public class Main {//
     	double threshold = -10;
     	
     	Iterator vIter = sorted.iterator();
-    	for (int i=0; i<10 && vIter.hasNext(); i++){//much will be delegated to getForwardPhrase() later
+    	for (int i=0; i<10 && vIter.hasNext(); i++){//much may be delegated to getForwardPhrase() later
     		Node v = (Node) vIter.next();
     		ArrayDeque<Node> forwardPhrase = new ArrayDeque<Node>();
     		forwardPhrase.addLast(v);
@@ -148,7 +148,7 @@ public class Main {//
             	
         		Node forwardNode = getForwardNode(sorted, outNodes, forwardPhrase);
         		if (forwardNode == null){
-        			break;
+        			continue;
         		}
         		forwardPhrase.addLast(forwardNode);
         		acc += Math.log(forwardNode.getNodeProb());
@@ -161,7 +161,7 @@ public class Main {//
     		//Set inEdges = graph.incomingEdgesOf(v);
     	}
     	
-    	for (Iterator pIter = phrases.iterator(); pIter.hasNext();){
+    	for (Iterator pIter = phrases.iterator(); pIter.hasNext();){//print the 10 phrases
     		ArrayDeque<Node> phrase = (ArrayDeque<Node>) pIter.next();
     		for (Iterator wIter = phrase.iterator(); wIter.hasNext();){
     			Node word = (Node) wIter.next();
