@@ -317,8 +317,8 @@ public class GraphBuilder {
                     double weight = graph.getEdgeWeight(e);
                     double total = (sourceProb * targetPrb * weight);
                     Node[] nodes = new Node[2];
-                    nodes[0] = ((Node) graph.getEdgeTarget(e));
-                    nodes[1] = ((Node) graph.getEdgeSource(e));
+                    nodes[1] = ((Node) graph.getEdgeTarget(e));
+                    nodes[0] = ((Node) graph.getEdgeSource(e));
                     ranked.put(nodes, total);
                 }
             }
@@ -364,13 +364,13 @@ public class GraphBuilder {
                     double weight = graph.getEdgeWeight(e);
                     double total = (sourceProb * targetPrb * weight);
                     if (total < thershold) {
-                        graph.removeEdge(e);
+                        graph.setEdgeWeight(e, -1);
                     }
                 }
             }
-            if (graph.outDegreeOf(v) <= 0 && graph.inDegreeOf(v) <= 0) {
-                graph.removeVertex(v);
-            }
+//            if (graph.outDegreeOf(v) <= 0 && graph.inDegreeOf(v) <= 0) {
+//                graph.removeVertex(v);
+//            }
         }
     }
 

@@ -1,0 +1,11 @@
+xmlfile = ctm_input/tech_sports/evaluation_dataset_topicgraph.xml;
+index = ctm_input/tech_sports/CTMindex;
+lambdaC = 0.6;
+lambdaS = 0.1;
+lambdaB = 0.9;
+cluster =4;
+it = 100;
+expNum=2;
+docGroup = ctm_input/tech_sports/subdocids;
+trial =100;
+resultsFile=ctm_input/tech_sports/ctm_results_4topics.txt;
