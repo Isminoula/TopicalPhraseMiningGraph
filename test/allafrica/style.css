@@ -1,0 +1,92 @@
+* {
+  font-family: "Lato";
+  /*border: 1px solid black;*/
+  display: block;
+  font-size: 0.95em;
+}
+.info {
+  /*float: left;*/
+}
+
+.node:hover {
+  color: green;
+}
+
+.header {
+  float: right;
+  font-size: 1.5em;
+  color: black;
+  font-weight: 300;
+}
+
+.phraselist {
+  max-height: 100%;
+  min-height: 100%;
+  overflow-y: scroll;
+  margin-right: -14px;
+}
+
+.phrase {
+  font-size: 1.2em;
+  padding-top: 4%;
+  padding-bottom: 4%;
+  border-bottom: 1px solid gray;
+  width: 100%;
+  margin: 0 auto;
+  color: gray;
+}
+
+.subheader {
+  font-weight: 700;
+  font-size: 1.5em;
+  color: red;
+}
+
+.graph {
+  float: left;
+  border-right: 1px solid gray;
+  border-top: 1px solid gray;
+}
+
+.graph-info {
+  max-height: 100%;
+  min-height: 100%;
+  float: right;
+}
+
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+path.link.twofive {
+  opacity: 0.25;
+}
+
+path.link.fivezero {
+  opacity: 0.50;
+}
+
+path.link.sevenfive {
+  opacity: 0.75;
+}
+
+path.link.onezerozero {
+  opacity: 1.0;
+  stroke: blue;
+}
+
+circle {
+  fill: #ccc;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+text {
+  fill: #000;
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+
